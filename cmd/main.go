@@ -25,4 +25,19 @@ func main() {
 		log.Println("Successfully connected, you are good to go!")
 	}
 
+	// Create Identity
+	identity, token, err := spdb.CreateIdentity()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("identity:", identity)
+	log.Println("token:", token)
+
+	// Create Websocket token
+	websocketToken, err := spdb.CreateIdentityWebsocketToken()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("websocketToken:", websocketToken)
+
 }

@@ -65,7 +65,7 @@ func NewClient(opts ...Option) (*Client, error) {
 	return client, nil
 }
 
-func (c *Client) Do(method, pathURL string, body []byte, headers map[string]string) (*http.Response, error) {
+func (c *Client) Do(method, pathURL string, headers map[string]string, body []byte) (*http.Response, error) {
 
 	// Build the url
 	fullURL := c.BaseURL + pathURL
