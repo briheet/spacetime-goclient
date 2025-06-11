@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/briheet/spacetimedb-go-client/transport/http"
-	"github.com/briheet/spacetimedb-go-client/transport/websockets"
+	httpClient "github.com/briheet/spacetime-goclient/transport/http"
+	websocketsClient "github.com/briheet/spacetime-goclient/transport/websockets"
 )
 
 type DBClient interface {
 	CallReducer(name string, args map[string]any) error
 	Subscribe(query string, handler func(snapshot []any, diff any)) error
 	Disconnect() error
+	Ping() error
 }
 
 var _ DBClient = (*Client)(nil)
@@ -27,7 +28,6 @@ type Client struct {
 
 func Connect(url string, port string, dbName string) (DBClient, error) {
 	base := fmt.Sprintf("%s:%s", url, port)
-
 
 	httpClient, err := httpClient.NewClient(
 		httpClient.WithBaseURL(base),
@@ -66,5 +66,21 @@ func (c *Client) Disconnect() error {
 			return fmt.Errorf("failed to close websocket connection: %w", err)
 		}
 	}
+	return nil
+}
+
+func (c *Client) Ping() error {
+
+	resp, err := c.HTTPClient.Do("GET", "/v1/ping", nil, nil)
+	if err != nil {
+		return fmt.Errorf("ping failed: %w", err)
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("ping failed: status code %d", resp.StatusCode)
+	}
+
 	return nil
 }

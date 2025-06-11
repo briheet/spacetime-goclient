@@ -1,4 +1,4 @@
-module github.com/briheet/spacetimedb-go-client
+module github.com/briheet/spacetime-goclient
 
 go 1.24.4
 

@@ -1,7 +1,9 @@
 package httpClient
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 )
@@ -61,4 +63,36 @@ func NewClient(opts ...Option) (*Client, error) {
 	}
 
 	return client, nil
+}
+
+func (c *Client) Do(method, pathURL string, body []byte, headers map[string]string) (*http.Response, error) {
+
+	// Build the url
+	fullURL := c.BaseURL + pathURL
+
+	// FIXME: Need changes after adding of other methods
+	var reqBody io.Reader
+	if body != nil {
+		reqBody = bytes.NewBuffer(body)
+	}
+
+	// Create a request
+	req, err := http.NewRequest(method, fullURL, reqBody)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	// Set respective header
+	req.Header.Set("Content-Type", "application/json")
+	for k, v := range headers {
+		req.Header.Set(k, v)
+	}
+
+	// Do a req
+	resp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("HTTP request failed: %w", err)
+	}
+
+	return resp, nil
 }
