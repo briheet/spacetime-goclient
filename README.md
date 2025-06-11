@@ -6,9 +6,8 @@ This repository includes go client for SpacetimeDB. Currently under development.
 
 Currently includes:
 
-- Connect to required server
-- Ping it to check if connected or not
-- Create spacetime public identities and private tokens.
+- Connect to required server and Ping to check
+- Identity API integration
 
 Start a new server via docker this:
 
