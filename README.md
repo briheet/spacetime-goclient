@@ -88,3 +88,37 @@ func main() {
 	}
 	log.Println("publicKey:", publicKey)
 ```
+
+4. Associate an email with a Spacetime identity (Needs some fixes)
+
+```go
+	// Register identity with email. Currently endpoint issue
+	emailIdentity, emailToken, err := spdb.RegisterIdentityWithEmail("briheetyadav@gmail.com")
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Email identity:", emailIdentity)
+	log.Println("Email token:", emailToken)
+```
+
+5. To list all databases owned by an identity
+
+```go
+	// Get databases by identity
+	databases, err := spdb.GetDatabasesByIdentity(identity)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(databases)
+```
+
+6. To verify identity and token is valid or not
+
+```go
+	// Verify identity and token
+	if err := spdb.VerifyIdentityToken(identity, token); err != nil {
+		log.Fatalf("Identity verification failed: %v", err)
+	} else {
+		log.Println("✅ Identity and token verified successfully.")
+	}
+```

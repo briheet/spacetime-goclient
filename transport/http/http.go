@@ -83,7 +83,6 @@ func (c *Client) Do(method, pathURL string, headers map[string]string, body []by
 	}
 
 	// Set respective header
-	req.Header.Set("Content-Type", "application/json")
 	for k, v := range headers {
 		req.Header.Set(k, v)
 	}

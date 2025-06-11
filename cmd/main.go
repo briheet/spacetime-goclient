@@ -46,4 +46,27 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Println("publicKey:", publicKey)
+
+	// FIXME: Register identity with email. Currently endpoint issue
+	// emailIdentity, emailToken, err := spdb.RegisterIdentityWithEmail("briheetyadav@gmail.com")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// log.Println("Email identity:", emailIdentity)
+	// log.Println("Email token:", emailToken)
+
+	// Get databases by identity
+	databases, err := spdb.GetDatabasesByIdentity(identity)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(databases)
+
+	// Verify identity and token
+	if err := spdb.VerifyIdentityToken(identity, token); err != nil {
+		log.Fatalf("Identity verification failed: %v", err)
+	} else {
+		log.Println("✅ Identity and token verified successfully.")
+	}
+
 }

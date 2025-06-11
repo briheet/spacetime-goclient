@@ -20,7 +20,6 @@ type DBClient interface {
 	// TODO: Database
 }
 
-
 var _ DBClient = (*Client)(nil)
 
 type Client struct {
@@ -89,3 +88,4 @@ func (c *Client) Ping() error {
 
 	return nil
 }
+
