@@ -40,4 +40,10 @@ func main() {
 	}
 	log.Println("websocketToken:", websocketToken)
 
+	// Get public key used by the database to verify tokens
+	publicKey, err := spdb.GetPublicKey()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("publicKey:", publicKey)
 }

@@ -1,9 +1,7 @@
 package spacetimedb
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
 	"time"
 
 	httpClient "github.com/briheet/spacetime-goclient/transport/http"
@@ -15,9 +13,13 @@ type DBClient interface {
 	Subscribe(query string, handler func(snapshot []any, diff any)) error
 	Disconnect() error
 	Ping() error
-	CreateIdentity() (string, string, error)
-	CreateIdentityWebsocketToken() (string, error)
+
+	// Identity Methods
+	Identity
+
+	// TODO: Database
 }
+
 
 var _ DBClient = (*Client)(nil)
 
@@ -86,70 +88,4 @@ func (c *Client) Ping() error {
 	}
 
 	return nil
-}
-
-func (c *Client) CreateIdentity() (string, string, error) {
-	resp, err := c.HTTPClient.Do("POST", "/v1/identity", nil, nil)
-	if err != nil {
-		return "", "", fmt.Errorf("failed to create identity: %w", err)
-	}
-
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		return "", "", fmt.Errorf("create identity failed: status code %d", resp.StatusCode)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", "", fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	var parsed struct {
-		Identity string `json:"identity"`
-		Token    string `json:"token"`
-	}
-
-	if err := json.Unmarshal(body, &parsed); err != nil {
-		return "", "", fmt.Errorf("failed to parse identity response: %w", err)
-	}
-
-	return parsed.Identity, parsed.Token, nil
-}
-
-func (c *Client) CreateIdentityWebsocketToken() (string, error) {
-
-	// First get a token which is needed for websocketToken call
-	_, token, err := c.CreateIdentity()
-	if err != nil {
-		return "", fmt.Errorf("unable to generate token %w", err)
-	}
-
-	// Construct headers which would be added in the request
-	headers := map[string]string{
-		"Authorization": fmt.Sprintf("Bearer %s", token),
-	}
-
-	// Make the request
-	resp, err := c.HTTPClient.Do("POST", "/v1/identity/websocket-token", headers, nil)
-	if err != nil {
-		return "", fmt.Errorf("websocket-token request failed: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Check status code
-	if resp.StatusCode != 200 {
-		return "", fmt.Errorf("websocket-token request failed: status code %d", resp.StatusCode)
-	}
-
-	var result struct {
-		Token string `json:"token"`
-	}
-
-	// Parse that shii
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", fmt.Errorf("failed to decode websocket token: %w", err)
-	}
-
-	return result.Token, nil
 }

@@ -19,7 +19,7 @@ docker run --rm --pull always -p 3000:3000 clockworklabs/spacetime start
 This is a external package, make sure golang is installed on your system. Then, install it via this command:
 
 ```go
-go get -u github.com/briheet/spacetime-goclient
+go get -u github.com/briheet/spacetime-goclient/spacetimedb
 ```
 
 To start using, follow this:
@@ -76,4 +76,15 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Println("websocketToken:", websocketToken)
+```
+
+3. To fetch the public key used by the database to verify tokens
+
+```go
+	// Get public key used by the database to verify tokens
+	publicKey, err := spdb.GetPublicKey()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("publicKey:", publicKey)
 ```
