@@ -125,15 +125,26 @@ func (c *Client) GetDatabaseInfo(nameOrIdentity string) (string, string, string,
 	}
 
 	var result struct {
-		DatabaseIdentity string `json:"database_identity"`
-		OwnerIdentity    string `json:"owner_identity"`
-		HostType         string `json:"host_type"`
-		InitialProgram   string `json:"initial_program"`
+		DatabaseIdentity struct {
+			Identity string `json:"__identity__"`
+		} `json:"database_identity"`
+		OwnerIdentity struct {
+			Identity string `json:"__identity__"`
+		} `json:"owner_identity"`
+		HostType       map[string]interface{} `json:"host_type"`
+		InitialProgram string                 `json:"initial_program"`
 	}
 
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	bodyBytes, _ := io.ReadAll(resp.Body)
+
+	if err := json.Unmarshal(bodyBytes, &result); err != nil {
 		return "", "", "", "", fmt.Errorf("failed to decode response: %w", err)
 	}
 
-	return result.DatabaseIdentity, result.OwnerIdentity, result.HostType, result.InitialProgram, nil
+	hostType := ""
+	for k := range result.HostType {
+		hostType = k
+		break
+	}
+	return result.DatabaseIdentity.Identity, result.OwnerIdentity.Identity, hostType, result.InitialProgram, nil
 }

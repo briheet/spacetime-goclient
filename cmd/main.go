@@ -6,6 +6,8 @@ import (
 	"github.com/briheet/spacetime-goclient/spacetimedb"
 )
 
+// For calling a reducer, first we get a dbID from a database http call, then we get token id, then we have to know before hand about the reducers that we have written in the lib.rs
+// Now we make the call that we are getting after doing a tcp dump ->  sudo tcpdump -i lo port 3000 -A
 func main() {
 
 	// Need to connect to existing server running on some port
@@ -33,40 +35,18 @@ func main() {
 	log.Println("identity:", identity)
 	log.Println("token:", token)
 
-	// Create Websocket token
-	websocketToken, err := spdb.CreateIdentityWebsocketToken()
+	dbIden, _, _, _, err := spdb.GetDatabaseInfo("quickstart-chat")
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("websocketToken:", websocketToken)
+	log.Println(dbIden)
 
-	// Get public key used by the database to verify tokens
-	publicKey, err := spdb.GetPublicKey()
+	reducerName := "send_message"
+	err = spdb.SendMessageDatabase(reducerName, dbIden, token, "Hello, world")
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("publicKey:", publicKey)
 
-	// FIXME: Register identity with email. Currently endpoint issue
-	// emailIdentity, emailToken, err := spdb.RegisterIdentityWithEmail("briheetyadav@gmail.com")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// log.Println("Email identity:", emailIdentity)
-	// log.Println("Email token:", emailToken)
-
-	// Get databases by identity
-	databases, err := spdb.GetDatabasesByIdentity(identity)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println(databases)
-
-	// Verify identity and token
-	if err := spdb.VerifyIdentityToken(identity, token); err != nil {
-		log.Fatalf("Identity verification failed: %v", err)
-	} else {
-		log.Println("✅ Identity and token verified successfully.")
-	}
+	log.Println("Successfully called reducer from golang")
 
 }

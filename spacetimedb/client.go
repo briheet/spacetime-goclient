@@ -9,8 +9,6 @@ import (
 )
 
 type DBClient interface {
-	CallReducer(name string, args map[string]any) error
-	Subscribe(query string, handler func(snapshot []any, diff any)) error
 	Disconnect() error
 	Ping() error
 
@@ -19,6 +17,9 @@ type DBClient interface {
 
 	// Database Methods
 	Database
+
+	// Decoded Client
+	DecodedClient
 }
 
 var _ DBClient = (*Client)(nil)
@@ -56,16 +57,6 @@ func Connect(url string, port string, dbName string) (DBClient, error) {
 		HTTPClient:      httpClient,
 		WebsocketClient: websocketClient,
 	}, nil
-}
-
-func (c *Client) CallReducer(name string, args map[string]any) error {
-	// TODO: Implement actual reducer call
-	return nil
-}
-
-func (c *Client) Subscribe(query string, handler func(snapshot []any, diff any)) error {
-	// TODO: Implement actual websocket subscription
-	return nil
 }
 
 func (c *Client) Disconnect() error {
