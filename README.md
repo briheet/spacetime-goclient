@@ -54,6 +54,8 @@ func main() {
 }
 ```
 
+## Identity
+
 1. To create a spacetime public identities and private tokens:
 
 ```go
@@ -103,6 +105,12 @@ func main() {
 5. To list all databases owned by an identity
 
 ```go
+	// Create Identity and Token
+	identity, _, err := spdb.CreateIdentity()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Get databases by identity
 	databases, err := spdb.GetDatabasesByIdentity(identity)
 	if err != nil {
@@ -114,6 +122,12 @@ func main() {
 6. To verify identity and token is valid or not
 
 ```go
+	// Create Identity and Token
+	identity, token, err := spdb.CreateIdentity()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Verify identity and token
 	if err := spdb.VerifyIdentityToken(identity, token); err != nil {
 		log.Fatalf("Identity verification failed: %v", err)
@@ -121,3 +135,7 @@ func main() {
 		log.Println("✅ Identity and token verified successfully.")
 	}
 ```
+
+## Database
+
+1. 

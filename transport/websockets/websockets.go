@@ -1,8 +1,9 @@
 package websocketsClient
 
 import (
-	"net/url"
 	"fmt"
+	"net/url"
+
 	"github.com/gorilla/websocket"
 )
 

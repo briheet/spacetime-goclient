@@ -17,7 +17,8 @@ type DBClient interface {
 	// Identity Methods
 	Identity
 
-	// TODO: Database
+	// Database Methods
+	Database
 }
 
 var _ DBClient = (*Client)(nil)
@@ -29,6 +30,10 @@ type Client struct {
 	HTTPClient *httpClient.Client
 	// Websockets for sub
 	WebsocketClient *websocketsClient.Conn
+
+	// Identity and Token
+	Identity string
+	Token    string
 }
 
 func Connect(url string, port string, dbName string) (DBClient, error) {
@@ -88,4 +93,3 @@ func (c *Client) Ping() error {
 
 	return nil
 }
-
