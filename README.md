@@ -8,6 +8,7 @@ Currently includes:
 
 - Connect to required server and Ping to check
 - Identity API integration
+- Database API integration
 
 Start a new server via docker this:
 
@@ -138,4 +139,121 @@ func main() {
 
 ## Database
 
-1. 
+1. Get a database's identity, owner identity, host type, number of replicas and a hash of its WASM module.
+
+```go
+	dbIden, _, _, _, err := spdb.GetDatabaseInfo("quickstart-chat")
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(dbIden)
+```
+
+2. Delete a database.
+
+```go
+	err = spdb.DeleteDatabase(dbIden, token)
+	if err != nil {
+		log.Fatal(err)
+	}
+```
+
+3. Get the names this database can be identified by.
+
+```go
+	names, err := spdb.GetDatabaseNames(dbIden)
+	if err != nil {
+		log.Fatalf("Error fetching names: %v", err)
+	}
+	log.Println("Names:", names)
+```
+
+4. Get the names this database can be identified by.
+
+```go
+	names, err := spdb.GetDatabaseNames(dbIden)
+	if err != nil {
+		log.Fatalf("Error fetching names: %v", err)
+	}
+	log.Println("Names:", names)
+```
+
+5. Add a new name for this database.
+
+```go
+	err = spdb.AddDatabaseName(dbIden, "mychat", token)
+	if err != nil {
+		log.Fatalf("Failed to name database: %v", err)
+	}
+	log.Println("Database name assigned successfully.")
+```
+
+6. Get the identity of a database.
+
+```go
+	id, err := spdb.GetDatabaseIdentity("quickstart-chat")
+	if err != nil {
+		log.Fatalf("Failed to fetch identity: %v", err)
+	}
+	log.Println("Database identity:", id)
+```
+
+7. Begin a WebSocket connection with a database.
+
+```go
+	conn, err := spdb.WebsocketSubscribe("quickstart-chat", token, "")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	for {
+		_, msg, err := conn.ReadMessage()
+		if err != nil {
+			log.Println("WebSocket read error:", err)
+			break
+		}
+		log.Println("Received message:", string(msg))
+	}
+```
+
+8. Invoke a reducer in a database.
+
+```go
+	reducerName := "send_message"
+	err = spdb.SendMessageDatabase(reducerName, dbIden, token, "Hello, world")
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Successfully called reducer from golang")
+```
+
+9. Retrieve logs from a database.
+
+```go
+	logs, err := spdb.GetDatabaseLogs("quickstart-chat", token, 100, false)
+	if err != nil {
+		log.Fatalf("failed to get logs: %v", err)
+	}
+	defer logs.Close()
+
+	scanner := bufio.NewScanner(logs)
+	for scanner.Scan() {
+		fmt.Println(scanner.Text())
+	}
+```
+
+10. Run a SQL query against a database.
+
+```go
+	dbName := "quickstart-chat"
+	results, err := spdb.RunSQLQuery(`SELECT * FROM person;`, token, dbName)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, res := range results {
+		fmt.Printf("Schema: %+v\n", res.Schema)
+		fmt.Printf("Rows: %+v\n", res.Rows)
+	}
+```

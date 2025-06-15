@@ -25,12 +25,13 @@ type DBClient interface {
 var _ DBClient = (*Client)(nil)
 
 type Client struct {
-	BaseURL string
-	DBName  string
+	HttpBaseURL string
+	WssBaseURL  string
+	DBName      string
 	// Http
 	HTTPClient *httpClient.Client
 	// Websockets for sub
-	WebsocketClient *websocketsClient.Conn
+	WebsocketClient *websocketsClient.Client
 
 	// Identity and Token
 	Identity string
@@ -38,21 +39,25 @@ type Client struct {
 }
 
 func Connect(url string, port string, dbName string) (DBClient, error) {
-	base := fmt.Sprintf("%s:%s", url, port)
+	httpBase := fmt.Sprintf("http://%s:%s", url, port)
+	wsBase := fmt.Sprintf("ws://%s:%s", url, port)
 
 	httpClient, err := httpClient.NewClient(
-		httpClient.WithBaseURL(base),
+		httpClient.WithBaseURL(httpBase),
 		httpClient.WithTimeout(3*time.Second),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create HTTP client: %w", err)
 	}
 
-	// TODO: Needs to be changed
-	websocketClient := &websocketsClient.Conn{}
+	websocketClient, err := websocketsClient.NewClient(
+		websocketsClient.WithBaseURL(wsBase),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create WebSocket client: %w", err)
+	}
 
 	return &Client{
-		BaseURL:         base,
 		DBName:          dbName,
 		HTTPClient:      httpClient,
 		WebsocketClient: websocketClient,
@@ -62,11 +67,11 @@ func Connect(url string, port string, dbName string) (DBClient, error) {
 func (c *Client) Disconnect() error {
 	// Clean up the Http and Websocket conn
 
-	if c.WebsocketClient != nil {
-		if err := c.WebsocketClient.Close(); err != nil {
-			return fmt.Errorf("failed to close websocket connection: %w", err)
-		}
-	}
+	// if c.WebsocketClient != nil {
+	// 	if err := c.WebsocketClient.Close(); err != nil {
+	// 		return fmt.Errorf("failed to close websocket connection: %w", err)
+	// 	}
+	// }
 	return nil
 }
 
